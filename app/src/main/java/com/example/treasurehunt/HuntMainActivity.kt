@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.SavedStateViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.example.treasurehunt.databinding.ActivityHuntMainBinding
 import com.google.android.gms.common.api.ResolvableApiException
@@ -54,7 +55,7 @@ class HuntMainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_hunt_main)
-        viewModel = ViewModelProviders.of(this, SavedStateViewModelFactory(this.application,
+        viewModel = ViewModelProvider(this, SavedStateViewModelFactory(this.application,
             this)
         ).get(GeofenceViewModel::class.java)
         binding.viewmodel = viewModel
@@ -69,7 +70,6 @@ class HuntMainActivity : AppCompatActivity() {
         super.onStart()
         checkPermissionsAndStartGeofencing()
     }
-
     /*
  *  When we get the result from asking the user to turn on device location, we call
  *  checkDeviceLocationSettingsAndStartGeofence again to make sure it's actually on, but
@@ -299,6 +299,11 @@ class HuntMainActivity : AppCompatActivity() {
             // Regardless of success/failure of the removal, add the new geofence
             addOnCompleteListener {
                 // Add the new geofence request with the new geofence
+                if (ActivityCompat.checkSelfPermission(
+                        this@HuntMainActivity,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) != PackageManager.PERMISSION_GRANTED
+                )
                 geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                     addOnSuccessListener {
                         // Geofences added.
